@@ -111,10 +111,10 @@ def moveSongs():
     endpoint = ""
     if system == "Darwin":
         path = os.path.expanduser("~")
-        endpoint = os.listdir(path + '/Music/Music/Media.localized/')
-        for e in endpoint:
-            if e == "Automatically Add to Music.localized":
-                endpoint = os.path.abspath(e)        
+        # endpoint = os.listdir(path + '/Music/Music/Media.localized/')
+        # for e in endpoint:
+        #     if e == "Automatically Add to Music.localized":
+        #         endpoint = os.path.abspath(e) + "/"
     elif system == "Windows":
         pass
     elif system == "Linux":
@@ -122,10 +122,12 @@ def moveSongs():
     else:
         print('Could not find operating system')
         return
-
+    endpoint = path + '/Music/Music/Media.localized/Automatically Add to Music.localized'
+    print("moving songs to " + endpoint)
     songs = os.listdir("songs")
     for song in songs:
-        os.rename("songs/" + song, endpoint)
+        os.rename("songs/" + song, endpoint + "/" + song)
     print("Done! All songs have been added to library")
-moveSongs()
+
+init()
 
