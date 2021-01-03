@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 
 options = Options()
 options.add_argument("--headless")  # makes chrome window not show
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome('chromedriver.exe', options=options)
 
 def metaDataFromUrl(url):
     arr = url.split('/')[3:]
@@ -111,23 +111,22 @@ def moveSongs():
     endpoint = ""
     if system == "Darwin":
         path = os.path.expanduser("~")
-        # endpoint = os.listdir(path + '/Music/Music/Media.localized/')
-        # for e in endpoint:
-        #     if e == "Automatically Add to Music.localized":
-        #         endpoint = os.path.abspath(e) + "/"
+        endpoint = path + '/Music/Music/Media.localized/Automatically Add to Music.localized'
+        print("moving songs to " + endpoint)
     elif system == "Windows":
-        pass
+        path = os.path.expanduser("~")
+        endpoint = path + '/Music\iTunes\iTunes Media\Automatically Add to iTunes'
+        print(endpoint)
     elif system == "Linux":
         pass
     else:
         print('Could not find operating system')
         return
-    endpoint = path + '/Music/Music/Media.localized/Automatically Add to Music.localized'
-    print("moving songs to " + endpoint)
+    
     songs = os.listdir("songs")
     for song in songs:
         os.rename("songs/" + song, endpoint + "/" + song)
     print("Done! All songs have been added to library")
 
-init()
+moveSongs()
 
