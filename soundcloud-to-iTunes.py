@@ -1,17 +1,21 @@
-import requests
-import eyed3
-import os
-import platform
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-
-options = Options()
-options.add_argument("--headless")  # makes chrome window not show
-driver = webdriver.Chrome('chromedriver.exe', options=options)
+try:
+    import requests
+    import eyed3
+    import os
+    import platform
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+except:
+    print("Required packages not installed, installing now.")
+    pip.main(["install", "--user", "eyed3"])
+    pip.main(["install", "--user", "platform"])
+    pip.main(["install", "--user", "requests"])
+    pip.main(["install", "--user", "os"])
+    pip.main(["install", "--user", "selenium"])
 
 def metaDataFromUrl(url):
     arr = url.split('/')[3:]
@@ -31,7 +35,7 @@ def metaDataFromUrl(url):
 
     return obj
 
-def type(path, text):  # wait for element to load then type
+def type(path, text, driver):  # wait for element to load then type
     try:
         element = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, path)))
@@ -39,17 +43,8 @@ def type(path, text):  # wait for element to load then type
     except TimeoutException:
         print("Failed to load", path)
 
-
-def click(path):  # wait for element to load then click
-    try:
-        element = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, path)))
-        driver.find_element_by_xpath(path).click()
-    except TimeoutException:
-        print("Failed to load", path)
-
-def init():
-    link = 'https://soundcloud.com/synnrmusic/sets/dream-on-little-dreamer-prod-by-jon-west' #input("Paste link: ")
+def init(driver):
+    link = 'https://soundcloud.com/synnrmusic/1-butterfly?in=synnrmusic/sets/dream-on-little-dreamer-prod-by-jon-west' #input("Paste link: ")
     driver.get(link)
     links = []
     try:
@@ -67,16 +62,16 @@ def init():
         for i in links:
             getSong(i)
     except:
-        getSong(link)
+        getSong(link, driver)
 
     driver.quit()
     moveSongs()
    
-def getSong(link):
+def getSong(link, driver):
     print("Getting " + link)
 
     driver.get('https://www.klickaud.co/')
-    type('//*[@id="header"]/div/div[1]/div[1]/form/input[1]', link)
+    type('//*[@id="header"]/div/div[1]/div[1]/form/input[1]', link, driver)
     driver.find_element_by_xpath('//*[@id="btn"]').click()
     print("Found song")
 
@@ -93,6 +88,7 @@ def getSong(link):
         open('artwork/art.jpg', 'wb').write(r.content)
         print('Downloaded art')
 
+    # apply meta data tags
     mp3 = eyed3.load('songs/'+fileName)
     if (mp3.tag == None):
         mp3.initTag()
@@ -115,7 +111,7 @@ def moveSongs():
         print("moving songs to " + endpoint)
     elif system == "Windows":
         path = os.path.expanduser("~")
-        endpoint = path + '/Music\iTunes\iTunes Media\Automatically Add to iTunes'
+        endpoint = path + '\Music\iTunes\iTunes Media\Automatically Add to iTunes'
         print(endpoint)
     elif system == "Linux":
         pass
@@ -128,5 +124,10 @@ def moveSongs():
         os.rename("songs/" + song, endpoint + "/" + song)
     print("Done! All songs have been added to library")
 
-moveSongs()
+if __name__ == '__main__':
+    options = Options()
+    options.add_argument("--headless")  # makes chrome window not show
+    options.add_argument("log-level=3") # surpresses warnings
+    driver = webdriver.Chrome('chromedriver.exe', options=options)
+    init(driver)
 
