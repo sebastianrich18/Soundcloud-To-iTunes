@@ -1,3 +1,4 @@
+import pip
 def importPackages():
     import requests
     import eyed3
