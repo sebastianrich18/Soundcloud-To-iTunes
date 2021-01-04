@@ -1,4 +1,4 @@
-try:
+def importPackages():
     import requests
     import eyed3
     import os
@@ -9,13 +9,6 @@ try:
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
-except:
-    print("Required packages not installed, installing now.")
-    pip.main(["install", "--user", "eyed3"])
-    pip.main(["install", "--user", "platform"])
-    pip.main(["install", "--user", "requests"])
-    pip.main(["install", "--user", "os"])
-    pip.main(["install", "--user", "selenium"])
 
 def metaDataFromUrl(url):
     arr = url.split('/')[3:]
@@ -125,6 +118,18 @@ def moveSongs():
     print("Done! All songs have been added to library")
 
 if __name__ == '__main__':
+    try:
+        import()
+    except:
+        print("Required packages not installed, installing now.")
+        pip.main(["install", "--user", "eyed3"])
+        pip.main(["install", "--user", "platform"])
+        pip.main(["install", "--user", "requests"])
+        pip.main(["install", "--user", "os"])
+        pip.main(["install", "--user", "selenium"])
+        print("Required Packages have been installed")
+        import()
+        
     options = Options()
     options.add_argument("--headless")  # makes chrome window not show
     options.add_argument("log-level=3") # surpresses warnings
