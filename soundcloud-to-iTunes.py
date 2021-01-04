@@ -133,6 +133,6 @@ if __name__ == '__main__':
     options = Options()
     options.add_argument("--headless")  # makes chrome window not show
     options.add_argument("log-level=3") # surpresses warnings
-    driver = webdriver.Chrome('chromedriver.exe', options=options)
+    driver = webdriver.Chrome('./chromedriver.exe', options=options)
     init(driver)
 
