@@ -1,5 +1,4 @@
-import pip
-def importPackages():
+try:
     import requests
     import eyed3
     import os
@@ -10,6 +9,8 @@ def importPackages():
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
+except:
+    raise Exception("Some required packages are not installed. use 'pip install -r requirements.txt' to install required packages, then run this pogram again")
 
 def metaDataFromUrl(url):
     arr = url.split('/')[3:]
@@ -29,6 +30,7 @@ def metaDataFromUrl(url):
 
     return obj
 
+
 def type(path, text, driver):  # wait for element to load then type
     try:
         element = WebDriverWait(driver, 10).until(
@@ -37,20 +39,22 @@ def type(path, text, driver):  # wait for element to load then type
     except TimeoutException:
         print("Failed to load", path)
 
+
 def init(driver):
-    link = 'https://soundcloud.com/synnrmusic/1-butterfly?in=synnrmusic/sets/dream-on-little-dreamer-prod-by-jon-west' #input("Paste link: ")
+    link = input("Paste link: ")
     driver.get(link)
     links = []
     try:
-        list = driver.find_element_by_xpath('//*[@id="content"]/div/div[3]/div[1]/div/div[2]/div[2]/div/div[3]/div/ul').find_elements_by_tag_name('li')
+        list = driver.find_element_by_xpath(
+            '//*[@id="content"]/div/div[3]/div[1]/div/div[2]/div[2]/div/div[3]/div/ul').find_elements_by_tag_name('li')
         for item in list:
             items = item.find_elements_by_tag_name('a')
             for i in items:
                 links.append(i.get_attribute('href'))
 
-        while("" in links) : 
-            links.remove("") 
-            
+        while("" in links):
+            links.remove("")
+
         print("found " + str(len(links)) + " songs")
 
         for i in links:
@@ -60,7 +64,8 @@ def init(driver):
 
     driver.quit()
     moveSongs()
-   
+
+
 def getSong(link, driver):
     print("Getting " + link)
 
@@ -69,7 +74,8 @@ def getSong(link, driver):
     driver.find_element_by_xpath('//*[@id="btn"]').click()
     print("Found song")
 
-    downloadLink = driver.find_element_by_xpath('//*[@id="header"]/div/div/div[1]/div/div[3]/table/tbody/tr/td[2]/a').get_attribute("href")
+    downloadLink = driver.find_element_by_xpath(
+        '//*[@id="header"]/div/div/div[1]/div/div[3]/table/tbody/tr/td[2]/a').get_attribute("href")
     r = requests.get(downloadLink)
     songData = metaDataFromUrl(link)
     fileName = '%s.mp3' % (songData['title'])
@@ -77,7 +83,8 @@ def getSong(link, driver):
     print("Downloaded song")
 
     if not os.path.exists("artwork/art.jpg"):
-        artLink = driver.find_element_by_xpath('//*[@id="header"]/div/div/div[1]/div/table/tbody/tr/td[1]/img').get_attribute('src')
+        artLink = driver.find_element_by_xpath(
+            '//*[@id="header"]/div/div/div[1]/div/table/tbody/tr/td[1]/img').get_attribute('src')
         r = requests.get(artLink)
         open('artwork/art.jpg', 'wb').write(r.content)
         print('Downloaded art')
@@ -94,9 +101,10 @@ def getSong(link, driver):
     mp3.tag.save(version=eyed3.id3.ID3_V2_3)
     print('saved tags')
 
+
 def moveSongs():
     system = platform.system()
-    currentPath =  os.path.abspath(os.getcwd())
+    currentPath = os.path.abspath(os.getcwd())
     path = ""
     endpoint = ""
     if system == "Darwin":
@@ -112,28 +120,23 @@ def moveSongs():
     else:
         print('Could not find operating system')
         return
-    
+
     songs = os.listdir("songs")
     for song in songs:
-        os.rename("songs/" + song, endpoint + "/" + song)
+        if song != '.gitignore':
+            os.rename("songs/" + song, endpoint + "/" + song)
     print("Done! All songs have been added to library")
 
+
 if __name__ == '__main__':
-    try:
-        import()
-    except:
-        print("Required packages not installed, installing now.")
-        pip.main(["install", "--user", "eyed3"])
-        pip.main(["install", "--user", "platform"])
-        pip.main(["install", "--user", "requests"])
-        pip.main(["install", "--user", "os"])
-        pip.main(["install", "--user", "selenium"])
-        print("Required Packages have been installed")
-        import()
-        
+    pathToDriver = ""
+    if platform.system() == "Darwin":
+        pathToDriver = "drivers/chromedriver"
+    elif platform.system() == "Windows":
+        pathToDriver = "drivers/chromedriver.exe"
+
     options = Options()
     options.add_argument("--headless")  # makes chrome window not show
-    options.add_argument("log-level=3") # surpresses warnings
-    driver = webdriver.Chrome('./chromedriver.exe', options=options)
+    options.add_argument("log-level=3")  # surpresses warnings
+    driver = webdriver.Chrome(pathToDriver, options=options)
     init(driver)
-
