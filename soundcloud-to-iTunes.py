@@ -10,7 +10,7 @@ try:
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
 except:
-    raise Exception("Some required packages are not installed. use 'pip install -r requirements.txt' to install required packages, then run this pogram again")
+    raise Exception("Some required packages are not installed. Use 'pip install -r requirements.txt' to install required packages, then run this pogram again")
 
 def metaDataFromUrl(url):
     arr = url.split('/')[3:]
@@ -104,12 +104,14 @@ def getSong(link, driver):
 
 def moveSongs():
     system = platform.system()
-    currentPath = os.path.abspath(os.getcwd())
     path = ""
     endpoint = ""
     if system == "Darwin":
-        path = os.path.expanduser("~")
-        endpoint = path + '/Music/Music/Media.localized/Automatically Add to Music.localized'
+        path = os.path.expanduser("~") + '/Music'
+        if(os.path.isdir(path + '/Music')):
+            endpoint = path + '/Music/Media.localized/Automatically Add to Music.localized'
+        elif os.path.isdir(path + '/iTunes'):
+            endpoint = path + '/iTunes/iTunes Media/Automatically Add to iTunes.localized'
         print("moving songs to " + endpoint)
     elif system == "Windows":
         path = os.path.expanduser("~")
@@ -120,7 +122,6 @@ def moveSongs():
     else:
         print('Could not find operating system')
         return
-
     songs = os.listdir("songs")
     for song in songs:
         if song != '.gitignore':
